@@ -13,6 +13,7 @@
   "devDependencies": {
     "autoprefixer": "^10.4.2",
     "postcss": "^8.4.5",
+    "rollup": "^2.70.1",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-vue2": "npm:rollup-plugin-vue@^5.1.9",
