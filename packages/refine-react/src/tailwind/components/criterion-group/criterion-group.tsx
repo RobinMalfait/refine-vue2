@@ -1,4 +1,4 @@
-import { CriterionBlueprintItem } from "refine-types";
+import { Criterion } from "refine-types";
 import { getDefaultCriterion } from "..";
 import { Criterion } from "../criterion";
 import { useQueryBuilder } from "../query-builder/use-query-builder";
@@ -9,30 +9,13 @@ import {
 
 type CriterionGroupProps = {
   index: number;
-  criteria: CriterionBlueprintItem[];
+  criteria: Criterion[];
 };
 
 export const CriterionGroup = ({ index, criteria }: CriterionGroupProps) => {
-  const { conditions, updateGroupedBlueprint } = useQueryBuilder();
+  const { blueprint, conditions } = useQueryBuilder();
 
-  const modify: CriterionGroupContext["modify"] = (payloadOrUpdateFn) => {
-    updateGroupedBlueprint((groupedBlueprint) =>
-      groupedBlueprint
-        .map((criteria, groupIndex) => {
-          if (groupIndex === index) {
-            return typeof payloadOrUpdateFn === "function"
-              ? payloadOrUpdateFn(criteria)
-              : payloadOrUpdateFn;
-          }
-
-          return criteria;
-        })
-        .filter((value): value is CriterionBlueprintItem[] => value !== null)
-    );
-  };
-
-  const addCriterion: CriterionGroupContext["addCriterion"] = (payload) =>
-    modify((criteria) => [...criteria, payload]);
+  const modify: CriterionGroupContext["modify"] = (payloadOrUpdateFn) => {};
 
   const updateCriterion: CriterionGroupContext["updateCriterion"] = (
     targetCriterionIndex,
@@ -47,26 +30,9 @@ export const CriterionGroup = ({ index, criteria }: CriterionGroupProps) => {
       })
     );
 
-  const removeCriterion: CriterionGroupContext["removeCriterion"] = (
-    targetCriterionIndex
-  ) =>
-    modify((criteria) => {
-      const updatedCriteria = criteria.filter(
-        (criterion, criterionIndex) => criterionIndex !== targetCriterionIndex
-      );
-
-      /**
-       * If removing the last criteria from a group, remove the group.
-       */
-      if (updatedCriteria.length === 0) {
-        return null;
-      }
-
-      return updatedCriteria;
-    });
-
-  const addDefaultCriterion = () => {
-    addCriterion(getDefaultCriterion(conditions));
+  const addCriterion = () => {
+    console.log("add criterion");
+    blueprint.insertCriterion(criteria[criteria.length - 1].position);
   };
 
   return (
@@ -77,7 +43,6 @@ export const CriterionGroup = ({ index, criteria }: CriterionGroupProps) => {
         modify,
         addCriterion,
         updateCriterion,
-        removeCriterion,
       }}
     >
       <div
@@ -90,7 +55,7 @@ export const CriterionGroup = ({ index, criteria }: CriterionGroupProps) => {
         <button
           data-testid="refine-add-criterion"
           type="button"
-          onClick={() => addDefaultCriterion()}
+          onClick={addCriterion}
           className="background-transparent text-blue-600 text-xs flex items-center py-1 px-3 mt-3"
         >
           <svg

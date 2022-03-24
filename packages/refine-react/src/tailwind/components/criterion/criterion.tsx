@@ -2,6 +2,7 @@ import { CriterionContext } from ".";
 import { Condition } from "../conditions/condition";
 import { useCondition } from "../conditions/use-condition";
 import { useCriterionGroup } from "../criterion-group/use-criterion-group";
+import { useQueryBuilder } from "../query-builder/use-query-builder";
 import { CriterionProvider } from "./use-criterion";
 
 export type CriterionProps = {
@@ -9,6 +10,7 @@ export type CriterionProps = {
 };
 
 export const Criterion = ({ index }: CriterionProps) => {
+  const { blueprint } = useQueryBuilder();
   const { criteria, ...group } = useCriterionGroup();
   const criterion = criteria[index];
 
@@ -20,12 +22,13 @@ export const Criterion = ({ index }: CriterionProps) => {
 
   const condition = useCondition(criterion.condition_id);
 
-  const update: CriterionContext["update"] = (payloadOrUpdateFn) =>
-    group.updateCriterion(index, payloadOrUpdateFn);
-  const remove: CriterionContext["remove"] = () => group.removeCriterion(index);
+  const update: CriterionContext["update"] = (criterion) => {
+    console.log("criterion:", criterion);
+    blueprint.replaceCriterion(criterion.position, criterion);
+  };
 
   return (
-    <CriterionProvider value={{ update, remove, ...criterion }}>
+    <CriterionProvider value={{ update, ...criterion }}>
       <div
         data-testid="refine-criterion"
         className="flex items-center space-x-3"
@@ -33,7 +36,7 @@ export const Criterion = ({ index }: CriterionProps) => {
         <button
           data-testid="refine-remove-criterion"
           className="inline-flex items-center justify-center py-1 px-3 text-gray-500"
-          onClick={() => remove()}
+          onClick={() => blueprint.removeCriterion(criterion.position)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
